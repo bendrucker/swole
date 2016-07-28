@@ -1,0 +1,38 @@
+{
+  "name": "swole",
+  "main": "index.js",
+  "version": "0.0.0",
+  "description": "HTTP request router for Swagger/OpenAPI",
+  "license": "MIT",
+  "repository": "bendrucker/swole",
+  "author": {
+    "name": "Ben Drucker",
+    "email": "bvdrucker@gmail.com",
+    "url": "bendrucker.me"
+  },
+  "scripts": {
+    "test": "standard && tape test.js"
+  },
+  "keywords": [
+    "swagger",
+    "swole",
+    "router",
+    "http",
+    "request",
+    "req",
+    "api"
+  ],
+  "devDependencies": {
+    "tape": "^4.0.0",
+    "standard": "^6.0.0"
+  },
+  "files": [
+    "index.js"
+  ],
+  "dependencies": {
+    "ajv": "~4.2.0",
+    "body-parser": "~1.15.2",
+    "http-hash-router": "~1.1.0",
+    "xtend": "~4.0.1"
+  }
+}
