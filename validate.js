@@ -2,6 +2,7 @@
 
 const Ajv = require('ajv')
 const extend = require('xtend')
+const map = require('map-obj')
 const TypedError = require('error/typed')
 
 module.exports = Validate
@@ -12,11 +13,7 @@ function Validate (swagger, path, method, route) {
   return {
     parameters: Parameters(path, method, route.parameters, ajv),
     body: Body(route.parameters, swagger.definitions, ajv),
-    response: response
-  }
-
-  function response (res, data, callback) {
-
+    response: Response(route.responses, swagger.definitions, ajv)
   }
 }
 
@@ -37,7 +34,7 @@ function Parameters (path, method, parameters, ajv) {
     }
 
     const valid = validate(parameters)
-    if (!valid) return callback(createError(validate.errors, 'parameters'))
+    if (!valid) return callback(createError(ValidationError, validate.errors, 'parameters'))
     callback()
   }
 }
@@ -68,7 +65,26 @@ function Body (parameters, definitions, ajv) {
 
   return function validateBody (req, callback) {
     const valid = validate(req.body)
-    if (!valid) return callback(createError(validate.errors, 'body'))
+    if (!valid) return callback(createError(ValidationError, validate.errors, 'body'))
+    callback()
+  }
+}
+
+function Response (responses, definitions, ajv) {
+  const validators = map(responses, function (code, response) {
+    return [code, ajv.compile(extend(response.schema, {definitions}))]
+  })
+
+  return function validateResponse (res, data, callback) {
+    const validate = validators[res.statusCode] || validators.default
+    if (!validate) {
+      return callback(StatusError({
+        status: res.statusCode
+      }))
+    }
+
+    const valid = validate(data)
+    if (!valid) return callback(createError(ResponseError, validate.errors, 'response'))
     callback()
   }
 }
@@ -81,8 +97,22 @@ const ValidationError = TypedError({
   source: null
 })
 
-function createError (errors, source) {
-  return ValidationError({
+const ResponseError = TypedError({
+  type: 'response.validation',
+  statusCode: 500,
+  message: 'Invalid data in {source}: {cause}',
+  cause: null,
+  source: null
+})
+
+const StatusError = TypedError({
+  type: 'response.status',
+  message: 'Unexpected response status: {status}',
+  status: null
+})
+
+function createError (Ctor, errors, source) {
+  return Ctor({
     source: source,
     cause: errors.map((e) => `${e.dataPath.replace(/^\./, '')} ${e.message}`).join(', ')
   })

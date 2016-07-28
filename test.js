@@ -108,3 +108,37 @@ test('400 post', function (t) {
     t.equal(err.message, 'Invalid data in body: id should be integer')
   }
 })
+
+test('invalid response', function (t) {
+  t.plan(4)
+
+  const router = Swole(fixtures.basic, {
+    strict: true,
+    handlers: {
+      post: function (req, res, callback) {
+        res.once('error', callback)
+        json(res, {
+          id: 'abc'
+        })
+      }
+    }
+  })
+
+  const options = {
+    method: 'post',
+    url: '/users',
+    payload: JSON.stringify({id: 123}),
+    headers: {
+      'content-type': 'application/json'
+    }
+  }
+
+  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+
+  function onError (err) {
+    t.ok(err, 'returns error')
+    t.equal(err.statusCode, 500, 'sets 500 status code')
+    t.equal(err.type, 'response.validation')
+    t.equal(err.message, 'Invalid data in response: id should be integer')
+  }
+})

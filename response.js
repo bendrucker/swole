@@ -11,17 +11,15 @@ function wrap (validate, res) {
 
 function ValidatedResponse (validate, res) {
   const chunks = []
-  const write = res.write.bind(res)
   const end = res.end.bind(res)
   return Object.assign(res, {
-    write: function copyWrite (chunk, enc, callback) {
-      if (write(chunk, enc, callback) === false) return
-      chunks.push(chunk)
-    },
+    write: (chunk) => chunks.push(chunk),
     end: function validateAndEnd (chunk, enc, callback) {
-      validate(res, JSON.parse(Buffer.concat(chunks)), function (err) {
-        if (err) res.emit('error', err)
-        end(chunk, enc, callback)
+      if (chunk) chunks.push(chunk)
+      const buffer = Buffer.concat(chunks.map(Buffer.from))
+      validate(res, JSON.parse(buffer), function (err) {
+        if (err) return res.emit('error', err)
+        end(buffer, enc, callback)
       })
     }
   })
