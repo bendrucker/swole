@@ -1,6 +1,8 @@
 'use strict'
 
 const Router = require('http-hash-router')
+const body = require('body-parser')
+const query = require('qs-middleware')
 const Validate = require('./validate')
 const response = require('./response')
 
@@ -17,6 +19,8 @@ function Swole (swagger) {
 
 function createRoutes (router, options) {
   const json = body.json()
+  const query = Query()
+
   map(swagger.paths, function (route, path) {
     router.set(toColon(path), map(route, Route))
   })
@@ -27,6 +31,7 @@ function createRoutes (router, options) {
 
     return function handle (req, res, callback) {
       serial([
+        partial(query, req, res),
         partial(validate.params, req),
         partial(json, req, res),
         partial(validate.body, req),
