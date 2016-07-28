@@ -23,17 +23,23 @@
     "api"
   ],
   "devDependencies": {
-    "tape": "^4.0.0",
-    "standard": "^6.0.0"
+    "bulk-require": "~1.0.0",
+    "send-json": "~2.0.0",
+    "shot": "~3.1.0",
+    "standard": "^6.0.0",
+    "tape": "^4.0.0"
   },
   "files": [
     "index.js"
   ],
   "dependencies": {
     "ajv": "~4.2.0",
+    "ap": "~0.2.0",
     "body-parser": "~1.15.2",
+    "fn-unary": "~1.0.0",
     "http-hash-router": "~1.1.0",
-    "qs-middleware": "~1.0.1",
+    "map-obj": "~1.0.1",
+    "run-series": "~1.1.4",
     "xtend": "~4.0.1"
   }
 }
