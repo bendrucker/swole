@@ -7,12 +7,12 @@ const json = require('send-json')
 const Swole = require('./')
 const fixtures = require('./fixtures')
 
-test('basic success', function (t) {
+test('200 get', function (t) {
   t.plan(3)
 
   const router = Swole(fixtures.basic, {
     handlers: {
-      basic: function (req, res, callback) {
+      get: function (req, res, callback) {
         t.deepEqual(req.params, {id: 123}, 'receives parsed params')
         json(res, {id: 123})
         callback()
@@ -21,6 +21,36 @@ test('basic success', function (t) {
   })
 
   inject(partialRight(router, (err) => err && t.end(err)), {url: '/users/123'}, function (response) {
+    t.equal(response.statusCode, 200, 'responds with 200')
+    t.deepEqual(JSON.parse(response.payload), {
+      id: 123
+    }, 'responds with {id: Number}')
+  })
+})
+
+test('200 post', function (t) {
+  t.plan(3)
+
+  const router = Swole(fixtures.basic, {
+    handlers: {
+      post: function (req, res, callback) {
+        t.deepEqual(req.body, {id: 123}, 'receives parsed body')
+        json(res, {id: 123})
+        callback()
+      }
+    }
+  })
+
+  const options = {
+    method: 'post',
+    url: '/users',
+    payload: JSON.stringify({id: 123}),
+    headers: {
+      'content-type': 'application/json'
+    }
+  }
+
+  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
     t.equal(response.statusCode, 200, 'responds with 200')
     t.deepEqual(JSON.parse(response.payload), {
       id: 123

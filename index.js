@@ -34,7 +34,7 @@ function createRoutes (router, swagger, options) {
   })
 
   function Route (path, method, data) {
-    const validate = Validate(path, method, data)
+    const validate = Validate(swagger, path, method, data)
     const handler = options.handlers[data['x-handler']]
 
     return function handle (req, res, data, callback) {

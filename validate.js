@@ -1,22 +1,17 @@
 'use strict'
 
 const Ajv = require('ajv')
-const ajv = new Ajv({coerceTypes: true})
+const extend = require('xtend')
 
 module.exports = Validate
 
-function Validate (path, method, route) {
-  return {
-    parameters: Parameters(path, method, route.parameters),
-    body: body,
-    response: response
-  }
+function Validate (swagger, path, method, route) {
+  const ajv = new Ajv({coerceTypes: true})
 
-  function body (req, callback) {
-    const parameter = route.parameters.find((p) => p.in === 'body')
-    if (!parameter) return callback()
-    const valid = ajv.validate(parameter, req.body)
-    if (valid) return callback()
+  return {
+    parameters: Parameters(path, method, route.parameters, ajv),
+    body: Body(route.parameters, swagger.definitions, ajv),
+    response: response
   }
 
   function response (res, data, callback) {
@@ -24,7 +19,7 @@ function Validate (path, method, route) {
   }
 }
 
-function Parameters (path, method, parameters) {
+function Parameters (path, method, parameters, ajv) {
   const validate = ajv.compile(parameters.reduce(function (acc, parameter) {
     if (parameter.in === 'body') return acc
     acc.properties[parameter.in].properties[parameter.name] = parameter
@@ -61,5 +56,18 @@ function createSchemas (keys, path, method) {
         }
       })
     }, {})
+  }
+}
+
+function Body (parameters, definitions, ajv) {
+  const parameter = parameters.find((p) => p.in === 'body')
+  if (!parameter) return (req, callback) => callback()
+
+  const validate = ajv.compile(extend(parameter.schema, {definitions}))
+
+  return function validateBody (req, callback) {
+    const valid = validate(req.body)
+    if (!valid) return callback(new Error(JSON.stringify(validate.errors)))
+    callback()
   }
 }
