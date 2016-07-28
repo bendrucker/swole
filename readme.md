@@ -1,7 +1,8 @@
 # swole [![Build Status](https://travis-ci.org/bendrucker/swole.svg?branch=master)](https://travis-ci.org/bendrucker/swole)
 
-> HTTP request router for Swagger/OpenAPI
+> HTTP request router for [Swagger/OpenAPI](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md)
 
+Swole is a configuration oriented router that glues your [Swagger API](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) definition to request handlers without any framework dependencies. Swole uses your API definition to handle parsing/validation of user inputs and can even validate responses.
 
 ## Install
 
@@ -13,31 +14,82 @@ $ npm install --save swole
 ## Usage
 
 ```js
-var swole = require('swole')
+var Swole = require('swole')
+var api = {
+  swagger: '2.0',
+  info: {
+    title: 'API'
+  },
+  paths: {
+    '/beep': {
+      get: {
+        'x-handler': 'beep',
+        responses: {
+          200: {
+            schema: {
+              type: 'string',
+              enum: ['boop']
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
-swole('input')
-//=> output
+var swole = Swole(api, {
+  handlers: {
+    beep: (req, res, callback) => res.end('boop', callback)
+  }  
+})
+
+server.on('request', function (req, res) {
+  swole(req, res, function (err) {
+    if (err) {
+      res.statusCode = err.statusCode || 500
+      return res.end(JSON.stringify(err))
+    }
+  })
+})
+```
+
+And make a request:
+
+```
+GET /beep
+#=> 200 boop
 ```
 
 ## API
 
-#### `swole(input, [options])` -> `output`
+#### `Swole(swagger, options)` -> `function`
 
-##### input
+Creates a new Swole API handler using a [Swagger](https://github.com/OAI/OpenAPI-Specification) definition and options.
+
+Returns a `req, res, callback` middleware function.
+
+##### swagger
 
 *Required*  
-Type: `string`
+Type: `object`
 
-Lorem ipsum.
+A Swagger API definition object.
 
 ##### options
 
-###### foo
+###### handlers
+
+*Required*  
+Type: `object{function}`
+
+An object containing `req, res, callback` handler functions that match to `x-handler` keys in your [operations objects](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#operationObject).
+
+###### strict
 
 Type: `boolean`  
 Default: `false`
 
-Lorem ipsum.
+In `strict` mode, swole will validate *outgoing* payloads in addition to incoming data. This is slow and expensive and should only be used for development/debugging.
 
 
 ## License
