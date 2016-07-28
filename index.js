@@ -48,10 +48,6 @@ function createRoutes (router, swagger, options) {
   }
 }
 
-function params (req, options, callback) {
-  req.params = {}
-}
-
 // /{foo}/bar/{baz} => /:foo/bar/:baz
 function toColon (path) {
   return path.replace(/{(.*?)}/g, (string, match) => ':' + match)

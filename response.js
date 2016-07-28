@@ -1,7 +1,5 @@
 'use strict'
 
-const ServerResponse = require('http').ServerResponse
-
 module.exports = {
   wrap: wrap
 }
