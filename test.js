@@ -142,3 +142,37 @@ test('invalid response', function (t) {
     t.equal(err.message, 'Invalid data in response: id should be integer')
   }
 })
+
+test('unexpected status', function (t) {
+  t.plan(3)
+
+  const router = Swole(fixtures.basic, {
+    strict: true,
+    handlers: {
+      post: function (req, res, callback) {
+        res.once('error', callback)
+        res.statusCode = 451
+        json(res, {
+          id: 123
+        })
+      }
+    }
+  })
+
+  const options = {
+    method: 'post',
+    url: '/users',
+    payload: JSON.stringify({id: 123}),
+    headers: {
+      'content-type': 'application/json'
+    }
+  }
+
+  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+
+  function onError (err) {
+    t.ok(err, 'returns error')
+    t.equal(err.type, 'response.status')
+    t.equal(err.message, 'Unexpected response status: 451')
+  }
+})
