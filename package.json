@@ -11,7 +11,7 @@
     "url": "bendrucker.me"
   },
   "scripts": {
-    "test": "standard && tape test.js"
+    "test": "standard && 100 tape test.js"
   },
   "keywords": [
     "swagger",
@@ -23,7 +23,9 @@
     "api"
   ],
   "devDependencies": {
+    "assert-100": "~1.1.0",
     "bulk-require": "~1.0.0",
+    "nyc": "~7.1.0",
     "send-json": "~2.0.0",
     "shot": "~3.1.0",
     "standard": "^6.0.0",

@@ -23,7 +23,7 @@ function ValidatedResponse (validate, res) {
       const buffer = Buffer.concat(chunks.map(Buffer.from))
       validate(res, JSON.parse(buffer), function (err) {
         if (err) return res.emit('error', err)
-        end(buffer, enc, callback)
+        end(chunk, enc, callback)
       })
     }
   })
