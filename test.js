@@ -110,7 +110,7 @@ test('400 post', function (t) {
 })
 
 test('valid response', function (t) {
-  t.plan(1)
+  t.plan(2)
 
   const router = Swole(fixtures.basic, {
     strict: true,
@@ -135,6 +135,7 @@ test('valid response', function (t) {
 
   inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
     t.equal(response.statusCode, 200)
+    t.deepEqual(JSON.parse(response.payload), {id: 123})
   })
 })
 
