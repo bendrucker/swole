@@ -75,6 +75,36 @@ test('400 get', function (t) {
     t.ok(err, 'returns error')
     t.equal(err.statusCode, 400, 'sets 400 status code')
     t.equal(err.type, 'request.validation')
-    t.equal(err.message, 'Validation error: path.id should be integer')
+    t.equal(err.message, 'Invalid data in parameters: path.id should be integer')
+  }
+})
+
+test('400 post', function (t) {
+  t.plan(4)
+
+  const router = Swole(fixtures.basic, {
+    handlers: {
+      post: function (req, res, callback) {
+        t.fail('handler should not be called')
+      }
+    }
+  })
+
+  const options = {
+    method: 'post',
+    url: '/users',
+    payload: JSON.stringify({id: 'abc'}),
+    headers: {
+      'content-type': 'application/json'
+    }
+  }
+
+  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+
+  function onError (err) {
+    t.ok(err, 'returns error')
+    t.equal(err.statusCode, 400, 'sets 400 status code')
+    t.equal(err.type, 'request.validation')
+    t.equal(err.message, 'Invalid data in body: id should be integer')
   }
 })

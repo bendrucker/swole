@@ -37,7 +37,7 @@ function Parameters (path, method, parameters, ajv) {
     }
 
     const valid = validate(parameters)
-    if (!valid) return callback(createError(validate.errors))
+    if (!valid) return callback(createError(validate.errors, 'parameters'))
     callback()
   }
 }
@@ -68,7 +68,7 @@ function Body (parameters, definitions, ajv) {
 
   return function validateBody (req, callback) {
     const valid = validate(req.body)
-    if (!valid) return callback(createError(validate.errors))
+    if (!valid) return callback(createError(validate.errors, 'body'))
     callback()
   }
 }
@@ -76,11 +76,14 @@ function Body (parameters, definitions, ajv) {
 const ValidationError = TypedError({
   type: 'request.validation',
   statusCode: 400,
-  message: 'Validation error: {cause}'
+  message: 'Invalid data in {source}: {cause}',
+  cause: null,
+  source: null
 })
 
-function createError (errors) {
+function createError (errors, source) {
   return ValidationError({
+    source: source,
     cause: errors.map((e) => `${e.dataPath.replace(/^\./, '')} ${e.message}`).join(', ')
   })
 }
