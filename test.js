@@ -109,6 +109,35 @@ test('400 post', function (t) {
   }
 })
 
+test('valid response', function (t) {
+  t.plan(1)
+
+  const router = Swole(fixtures.basic, {
+    strict: true,
+    handlers: {
+      post: function (req, res, callback) {
+        res.once('error', callback)
+        json(res, {
+          id: 123
+        })
+      }
+    }
+  })
+
+  const options = {
+    method: 'post',
+    url: '/users',
+    payload: JSON.stringify({id: 123}),
+    headers: {
+      'content-type': 'application/json'
+    }
+  }
+
+  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
+    t.equal(response.statusCode, 200)
+  })
+})
+
 test('invalid response', function (t) {
   t.plan(4)
 
