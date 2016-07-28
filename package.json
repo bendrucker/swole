@@ -32,7 +32,7 @@
     "tape": "^4.0.0"
   },
   "files": [
-    "index.js"
+    "*.js"
   ],
   "dependencies": {
     "ajv": "~4.2.0",
