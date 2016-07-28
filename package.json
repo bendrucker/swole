@@ -36,6 +36,7 @@
     "ajv": "~4.2.0",
     "ap": "~0.2.0",
     "body-parser": "~1.15.2",
+    "error": "~7.0.2",
     "fn-unary": "~1.0.0",
     "http-hash-router": "~1.1.0",
     "map-obj": "~1.0.1",

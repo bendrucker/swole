@@ -2,6 +2,7 @@
 
 const Ajv = require('ajv')
 const extend = require('xtend')
+const TypedError = require('error/typed')
 
 module.exports = Validate
 
@@ -36,7 +37,7 @@ function Parameters (path, method, parameters, ajv) {
     }
 
     const valid = validate(parameters)
-    if (!valid) return callback(new Error(JSON.stringify(validate.errors)))
+    if (!valid) return callback(createError(validate.errors))
     callback()
   }
 }
@@ -67,7 +68,19 @@ function Body (parameters, definitions, ajv) {
 
   return function validateBody (req, callback) {
     const valid = validate(req.body)
-    if (!valid) return callback(new Error(JSON.stringify(validate.errors)))
+    if (!valid) return callback(createError(validate.errors))
     callback()
   }
+}
+
+const ValidationError = TypedError({
+  type: 'request.validation',
+  statusCode: 400,
+  message: 'Validation error: {cause}'
+})
+
+function createError (errors) {
+  return ValidationError({
+    cause: errors.map((e) => `${e.dataPath.replace(/^\./, '')} ${e.message}`).join(', ')
+  })
 }

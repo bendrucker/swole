@@ -57,3 +57,24 @@ test('200 post', function (t) {
     }, 'responds with {id: Number}')
   })
 })
+
+test('400 get', function (t) {
+  t.plan(4)
+
+  const router = Swole(fixtures.basic, {
+    handlers: {
+      get: function (req, res, callback) {
+        t.fail('handler should not be called')
+      }
+    }
+  })
+
+  inject(partialRight(router, onError), {url: '/users/boop'}, t.fail.bind('no response'))
+
+  function onError (err) {
+    t.ok(err, 'returns error')
+    t.equal(err.statusCode, 400, 'sets 400 status code')
+    t.equal(err.type, 'request.validation')
+    t.equal(err.message, 'Validation error: path.id should be integer')
+  }
+})
