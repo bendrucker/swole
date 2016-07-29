@@ -20,7 +20,9 @@ function ValidatedResponse (validate, res) {
     },
     end: function validateAndEnd (chunk, enc, callback) {
       if (chunk) chunks.push(chunk)
-      const buffer = Buffer.concat(chunks.map(Buffer.from))
+      const buffer = Buffer.concat(chunks.map(function (chunk) {
+        return Buffer.isBuffer(chunk) ? chunk : new Buffer(chunk)
+      }))
       validate(res, JSON.parse(buffer), function (err) {
         if (err) return res.emit('error', err)
         end(chunk, enc, callback)

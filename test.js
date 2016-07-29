@@ -170,6 +170,37 @@ test('valid response: no end chunk', function (t) {
   })
 })
 
+test('valid response: buffers', function (t) {
+  t.plan(2)
+
+  const router = Swole(fixtures.basic, {
+    strict: true,
+    handlers: {
+      post: function (req, res, callback) {
+        res.once('error', callback)
+        res.write(new Buffer(JSON.stringify({
+          id: 123
+        })))
+        res.end()
+      }
+    }
+  })
+
+  const options = {
+    method: 'post',
+    url: '/users',
+    payload: JSON.stringify({id: 123}),
+    headers: {
+      'content-type': 'application/json'
+    }
+  }
+
+  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
+    t.equal(response.statusCode, 200)
+    t.deepEqual(JSON.parse(response.payload), {id: 123})
+  })
+})
+
 test('invalid response', function (t) {
   t.plan(4)
 
