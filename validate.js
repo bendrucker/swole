@@ -18,6 +18,8 @@ function Validate (swagger, path, method, route) {
 }
 
 function Parameters (path, method, parameters, ajv) {
+  if (!parameters) return (req, params, callback) => callback()
+
   const validate = ajv.compile(parameters.reduce(function (acc, parameter) {
     if (parameter.in === 'body') return acc
     acc.properties[parameter.in].properties[parameter.name] = parameter
