@@ -60,7 +60,7 @@ function createSchemas (keys, path, method) {
 }
 
 function Body (parameters, definitions, ajv) {
-  const parameter = parameters.find((p) => p.in === 'body')
+  const parameter = (parameters || []).find((p) => p.in === 'body')
   if (!parameter) return (req, callback) => callback()
 
   const validate = ajv.compile(extend(parameter.schema, {definitions}))
