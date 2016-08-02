@@ -5,6 +5,7 @@ const map = require('map-obj')
 const partial = require('ap').partial
 const series = require('run-series')
 const unary = require('fn-unary')
+const join = require('url-join')
 
 const body = require('body-parser')
 
@@ -27,7 +28,8 @@ function createRoutes (router, swagger, options) {
 
   Object.keys(swagger.paths).forEach(function (path) {
     const route = swagger.paths[path]
-    router.set(toColon(path), map(route, (method, data) => [
+    const base = swagger.basePath || ''
+    router.set(join(base, toColon(path)), map(route, (method, data) => [
       method.toUpperCase(),
       Route(path, method, data)
     ]))

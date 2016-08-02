@@ -4,6 +4,7 @@ const test = require('tape')
 const inject = require('shot').inject
 const partialRight = require('ap').partialRight
 const json = require('send-json')
+const extend = require('xtend')
 const Swole = require('./')
 const fixtures = require('./fixtures')
 
@@ -267,4 +268,50 @@ test('unexpected status', function (t) {
     t.equal(err.type, 'response.status')
     t.equal(err.message, 'Unexpected response status: 451')
   }
+})
+
+test('basePath', function (t) {
+  t.plan(1)
+
+  const router = Swole(extend(fixtures.basic, {basePath: '/boop'}), {
+    handlers: {
+      post: function (req, res, callback) {
+        res.end()
+      }
+    }
+  })
+
+  const options = {
+    method: 'post',
+    url: '/boop/users',
+    payload: JSON.stringify({id: 123}),
+    headers: {
+      'content-type': 'application/json'
+    }
+  }
+
+  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
+    t.equal(response.statusCode, 200)
+  })
+})
+
+test('no parameters', function (t) {
+  t.plan(1)
+
+  const router = Swole(fixtures.basic, {
+    handlers: {
+      get: function (req, res, callback) {
+        res.end()
+      }
+    }
+  })
+
+  const options = {
+    method: 'get',
+    url: '/paramless'
+  }
+
+  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
+    t.equal(response.statusCode, 200)
+  })
 })
