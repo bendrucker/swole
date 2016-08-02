@@ -14,14 +14,14 @@ function Validate (swagger, path, method, route) {
   const ajv = new Ajv({coerceTypes: true})
 
   return {
-    parameters: Parameters(route.parameters),
+    parameters: Parameters(route.parameters, {parameters: swagger.parameters}),
     body: Body(route.parameters, swagger.definitions, ajv),
     response: Response(route.responses, swagger.definitions, ajv)
   }
 }
 
-function Parameters (parameters) {
-  const parse = SwaggerParameters(parameters)
+function Parameters (parameters, data) {
+  const parse = SwaggerParameters(parameters, data)
   return function validateParameters (req, pathParams, callback) {
     parse({
       path: pathParams,
