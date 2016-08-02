@@ -1,5 +1,7 @@
 'use strict'
 
+const SwaggerParameters = require('swagger-parameters')
+const url = require('url')
 const Ajv = require('ajv')
 const extend = require('xtend')
 const map = require('map-obj')
@@ -11,51 +13,30 @@ function Validate (swagger, path, method, route) {
   const ajv = new Ajv({coerceTypes: true})
 
   return {
-    parameters: Parameters(path, method, route.parameters, ajv),
+    parameters: Parameters(route.parameters),
     body: Body(route.parameters, swagger.definitions, ajv),
     response: Response(route.responses, swagger.definitions, ajv)
   }
 }
 
-function Parameters (path, method, parameters, ajv) {
-  if (!parameters) return (req, params, callback) => callback()
-
-  const validate = ajv.compile(parameters.reduce(function (acc, parameter) {
-    if (parameter.in === 'body') return acc
-    acc.properties[parameter.in].properties[parameter.name] = parameter
-    return acc
-  }, createSchemas(['header', 'query', 'path'], path, method)))
-
+function Parameters (parameters) {
+  const parse = SwaggerParameters(parameters)
   return function validateParameters (req, pathParams, callback) {
-    req.params = pathParams
+    parse({
+      path: pathParams,
+      query: url.parse(req.url, true).query,
+      headers: req.headers
+    }, onValidate)
 
-    const parameters = {
-      query: req.query,
-      header: req.headers,
-      path: req.params
-    }
-
-    const valid = validate(parameters)
-    if (!valid) return callback(createError(ValidationError, validate.errors, 'parameters'))
-    callback()
-  }
-}
-
-function createSchemas (keys, path, method) {
-  return {
-    title: 'HTTP parameters',
-    description: 'HTTP header, path, and query parameters',
-    type: 'object',
-    properties: keys.reduce(function (acc, key) {
-      return Object.assign(acc, {
-        [key]: {
-          title: 'HTTP ' + key,
-          description: `HTTP ${key} parameters schema for '${method} ${path}'`,
-          type: 'object',
-          properties: {}
-        }
+    function onValidate (err, data) {
+      if (err) return callback(createError(ValidationError, err.errors, 'parameters'))
+      Object.assign(req, {
+        params: data.path,
+        query: data.query,
+        headers: data.headers
       })
-    }, {})
+      callback()
+    }
   }
 }
 
@@ -116,6 +97,7 @@ const StatusError = TypedError({
 function createError (Ctor, errors, source) {
   return Ctor({
     source: source,
-    cause: errors.map((e) => `${e.dataPath.replace(/^\./, '')} ${e.message}`).join(', ')
+    cause: errors.map((e) => `${e.dataPath.replace(/^\./, '')} ${e.message}`).join(', '),
+    errors: errors
   })
 }

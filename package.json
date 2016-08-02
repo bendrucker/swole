@@ -43,6 +43,7 @@
     "http-hash-router": "~1.1.0",
     "map-obj": "~1.0.1",
     "run-series": "~1.1.4",
+    "swagger-parameters": "~1.0.1",
     "url-join": "~1.1.0",
     "xtend": "~4.0.1"
   }
