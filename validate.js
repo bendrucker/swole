@@ -5,6 +5,7 @@ const url = require('url')
 const Ajv = require('ajv')
 const extend = require('xtend')
 const map = require('map-obj')
+const safeJson = require('safe-json-parse/callback')
 const TypedError = require('error/typed')
 
 module.exports = Validate
@@ -66,9 +67,12 @@ function Response (responses, definitions, ajv) {
       }))
     }
 
-    const valid = validate(data)
-    if (!valid) return callback(createError(ResponseError, validate.errors, 'response'))
-    callback()
+    safeJson(data, function (err, data) {
+      if (err) return callback(err)
+      const valid = validate(data)
+      if (!valid) return callback(createError(ResponseError, validate.errors, 'response'))
+      callback()
+    })
   }
 }
 

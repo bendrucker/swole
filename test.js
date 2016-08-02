@@ -237,6 +237,38 @@ test('invalid response', function (t) {
   }
 })
 
+test('invalid response: bad data', function (t) {
+  t.plan(3)
+
+  const router = Swole(fixtures.basic, {
+    strict: true,
+    handlers: {
+      post: function (req, res, callback) {
+        res.once('error', callback)
+        res.setHeader('content-type', 'application/json')
+        res.end('{foo: bar}')
+      }
+    }
+  })
+
+  const options = {
+    method: 'post',
+    url: '/users',
+    payload: JSON.stringify({id: 123}),
+    headers: {
+      'content-type': 'application/json'
+    }
+  }
+
+  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+
+  function onError (err) {
+    t.ok(err, 'returns error')
+    t.equal(err.name, 'SyntaxError')
+    t.ok(/token f/.test(err.message))
+  }
+})
+
 test('unexpected status', function (t) {
   t.plan(5)
 
