@@ -148,6 +148,7 @@ test('valid response: no end chunk', function (t) {
     handlers: {
       post: function (req, res, callback) {
         res.once('error', callback)
+        res.writeHead(200)
         res.write(JSON.stringify({
           id: 123
         }))
@@ -237,12 +238,16 @@ test('invalid response', function (t) {
 })
 
 test('unexpected status', function (t) {
-  t.plan(3)
+  t.plan(5)
 
   const router = Swole(fixtures.basic, {
     strict: true,
     handlers: {
       post: function (req, res, callback) {
+        res.setHeader('beep', 'boop')
+        t.equal(res.getHeader('beep'), 'boop', 'can getHeader')
+        res.removeHeader('beep')
+        t.notOk(res.getHeader('beep'), 'can removeHeader')
         res.once('error', callback)
         res.statusCode = 451
         json(res, {

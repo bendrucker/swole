@@ -44,7 +44,7 @@ function createRoutes (router, swagger, options) {
         partial(validate.parameters, req, data.params),
         partial(json, req, res),
         partial(validate.body, req),
-        partial(handler, req, response.wrap(options.strict && validate.response, res))
+        partial(handler, req, response.wrap(req, res, options.strict && validate.response))
       ], callback)
     }
   }
