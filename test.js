@@ -261,7 +261,7 @@ test('unexpected status', function (t) {
     }
   }
 
-  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+  inject(partialRight(router, onError), options, t.fail.bind(t, 'no response'))
 
   function onError (err) {
     t.ok(err, 'returns error')
