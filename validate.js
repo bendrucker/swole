@@ -1,5 +1,6 @@
 'use strict'
 
+const assert = require('assert')
 const SwaggerParameters = require('swagger-parameters')
 const url = require('url')
 const Ajv = require('ajv')
@@ -13,6 +14,8 @@ module.exports = Validate
 function Validate (swagger, path, method, route) {
   const ajv = new Ajv({coerceTypes: true})
 
+  assert(route.responses, `missing responses in ${path}`)
+
   return {
     parameters: Parameters(route.parameters, {parameters: swagger.parameters}),
     body: Body(route.parameters, swagger.definitions, ajv),
@@ -22,6 +25,7 @@ function Validate (swagger, path, method, route) {
 
 function Parameters (parameters, data) {
   const parse = SwaggerParameters(parameters, data)
+
   return function validateParameters (req, pathParams, callback) {
     parse({
       path: pathParams,
