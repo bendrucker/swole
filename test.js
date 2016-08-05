@@ -17,7 +17,8 @@ test('200 get', function (t) {
         t.deepEqual(req.params, {id: 123}, 'receives parsed params')
         json(res, {id: 123})
         callback()
-      }
+      },
+      post: t.fail.bind(t)
     }
   })
 
@@ -34,6 +35,7 @@ test('200 post', function (t) {
 
   const router = Swole(fixtures.basic, {
     handlers: {
+      get: t.fail.bind(t),
       post: function (req, res, callback) {
         t.deepEqual(req.body, {id: 123}, 'receives parsed body')
         json(res, {id: 123})
@@ -66,7 +68,8 @@ test('400 get', function (t) {
     handlers: {
       get: function (req, res, callback) {
         t.fail('handler should not be called')
-      }
+      },
+      post: t.fail.bind(t)
     }
   })
 
@@ -85,6 +88,7 @@ test('400 post', function (t) {
 
   const router = Swole(fixtures.basic, {
     handlers: {
+      get: t.fail.bind(t),
       post: function (req, res, callback) {
         t.fail('handler should not be called')
       }
@@ -116,6 +120,7 @@ test('valid response', function (t) {
   const router = Swole(fixtures.basic, {
     strict: true,
     handlers: {
+      get: t.fail.bind(t),
       post: function (req, res, callback) {
         res.once('error', callback)
         json(res, {
@@ -146,6 +151,7 @@ test('valid response: no end chunk', function (t) {
   const router = Swole(fixtures.basic, {
     strict: true,
     handlers: {
+      get: t.fail.bind(t),
       post: function (req, res, callback) {
         res.once('error', callback)
         res.writeHead(200)
@@ -178,6 +184,7 @@ test('valid response: buffers', function (t) {
   const router = Swole(fixtures.basic, {
     strict: true,
     handlers: {
+      get: t.fail.bind(t),
       post: function (req, res, callback) {
         res.once('error', callback)
         res.write(new Buffer(JSON.stringify({
@@ -209,6 +216,7 @@ test('invalid response', function (t) {
   const router = Swole(fixtures.basic, {
     strict: true,
     handlers: {
+      get: t.fail.bind(t),
       post: function (req, res, callback) {
         res.once('error', callback)
         json(res, {
@@ -243,6 +251,7 @@ test('invalid response: bad data', function (t) {
   const router = Swole(fixtures.basic, {
     strict: true,
     handlers: {
+      get: t.fail.bind(t),
       post: function (req, res, callback) {
         res.once('error', callback)
         res.setHeader('content-type', 'application/json')
@@ -275,6 +284,7 @@ test('unexpected status', function (t) {
   const router = Swole(fixtures.basic, {
     strict: true,
     handlers: {
+      get: t.fail.bind(t),
       post: function (req, res, callback) {
         res.setHeader('beep', 'boop')
         t.equal(res.getHeader('beep'), 'boop', 'can getHeader')
@@ -312,6 +322,7 @@ test('basePath', function (t) {
 
   const router = Swole(extend(fixtures.basic, {basePath: '/boop'}), {
     handlers: {
+      get: t.fail.bind(t),
       post: function (req, res, callback) {
         res.end()
       }
@@ -339,7 +350,8 @@ test('no parameters', function (t) {
     handlers: {
       get: function (req, res, callback) {
         res.end()
-      }
+      },
+      post: t.fail.bind(t)
     }
   })
 
@@ -351,4 +363,16 @@ test('no parameters', function (t) {
   inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
     t.equal(response.statusCode, 200)
   })
+})
+
+test('throws with missing handler', function (t) {
+  t.throws(Swole.bind(null, fixtures.basic, {
+    handlers: {
+      get: function (req, res, callback) {
+        res.end()
+      }
+    }
+  }), /invalid x-handler/)
+
+  t.end()
 })
