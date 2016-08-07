@@ -35,7 +35,7 @@
     "*.js"
   ],
   "dependencies": {
-    "ajv": "~4.2.0",
+    "ajv": "~4.4.0",
     "ap": "~0.2.0",
     "body-parser": "~1.15.2",
     "delayed-response": "~1.0.0",
