@@ -60,15 +60,24 @@ function Body (parameters, definitions, ajv) {
 
 function Response (responses, definitions, ajv) {
   const validators = map(responses, function (code, response) {
+    if (response.schema && response.schema.type === 'file') {
+      return [code, true]
+    }
+
     return [code, ajv.compile(extend(response.schema, {definitions}))]
   })
 
   return function validateResponse (res, data, callback) {
     const validate = validators[res.statusCode] || validators.default
+
     if (!validate) {
       return callback(StatusError({
         status: res.statusCode
       }))
+    }
+
+    if (validate === true) {
+      return callback()
     }
 
     safeJson(data, function (err, data) {

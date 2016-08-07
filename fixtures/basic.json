@@ -53,6 +53,19 @@
           }
         }
       }
+    },
+    "/file": {
+      "get": {
+        "x-handler": "get",
+        "responses": {
+          "200": {
+            "description": "It's a file",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {

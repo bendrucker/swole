@@ -365,6 +365,29 @@ test('no parameters', function (t) {
   })
 })
 
+test('file', function (t) {
+  t.plan(1)
+
+  const router = Swole(fixtures.basic, {
+    strict: true,
+    handlers: {
+      get: function (req, res, callback) {
+        res.end()
+      },
+      post: t.fail.bind(t)
+    }
+  })
+
+  const options = {
+    method: 'get',
+    url: '/file'
+  }
+
+  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
+    t.equal(response.statusCode, 200)
+  })
+})
+
 test('throws with missing handler', function (t) {
   t.throws(Swole.bind(null, fixtures.basic, {
     handlers: {
