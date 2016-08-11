@@ -34,7 +34,7 @@ function Parameters (parameters, data) {
     }, onValidate)
 
     function onValidate (err, data) {
-      if (err) return callback(createError(ValidationError, err.errors, 'parameters'))
+      if (err) return callback(createError(ValidationError, err.errors, null, 'parameters'))
       Object.assign(req, {
         params: data.path,
         query: data.query,
@@ -53,7 +53,7 @@ function Body (parameters, definitions, ajv) {
 
   return function validateBody (req, callback) {
     const valid = validate(req.body)
-    if (!valid) return callback(createError(ValidationError, validate.errors, 'body'))
+    if (!valid) return callback(createError(ValidationError, validate.errors, req.body, 'body'))
     callback()
   }
 }
@@ -83,7 +83,7 @@ function Response (responses, definitions, ajv) {
     safeJson(data, function (err, data) {
       if (err) return callback(err)
       const valid = validate(data)
-      if (!valid) return callback(createError(ResponseError, validate.errors, 'response'))
+      if (!valid) return callback(createError(ResponseError, validate.errors, data, 'response'))
       callback()
     })
   }
@@ -94,7 +94,8 @@ const ValidationError = TypedError({
   statusCode: 400,
   message: 'Invalid data in {source}: {cause}',
   cause: null,
-  source: null
+  source: null,
+  data: null
 })
 
 const ResponseError = TypedError({
@@ -102,7 +103,8 @@ const ResponseError = TypedError({
   statusCode: 500,
   message: 'Invalid data in {source}: {cause}',
   cause: null,
-  source: null
+  source: null,
+  data: null
 })
 
 const StatusError = TypedError({
@@ -111,9 +113,10 @@ const StatusError = TypedError({
   status: null
 })
 
-function createError (Ctor, errors, source) {
+function createError (Ctor, errors, data, source) {
   return Ctor({
     source: source,
+    data: data,
     cause: errors.map((e) => `${e.dataPath.replace(/^\./, '')} ${e.message}`).join(', '),
     errors: errors
   })

@@ -84,7 +84,7 @@ test('400 get', function (t) {
 })
 
 test('400 post', function (t) {
-  t.plan(4)
+  t.plan(5)
 
   const router = Swole(fixtures.basic, {
     handlers: {
@@ -111,6 +111,7 @@ test('400 post', function (t) {
     t.equal(err.statusCode, 400, 'sets 400 status code')
     t.equal(err.type, 'request.validation')
     t.equal(err.message, 'Invalid data in body: id should be integer')
+    t.deepEqual(err.data, {id: 'abc'})
   }
 })
 
@@ -211,7 +212,7 @@ test('valid response: buffers', function (t) {
 })
 
 test('invalid response', function (t) {
-  t.plan(4)
+  t.plan(5)
 
   const router = Swole(fixtures.basic, {
     strict: true,
@@ -242,6 +243,7 @@ test('invalid response', function (t) {
     t.equal(err.statusCode, 500, 'sets 500 status code')
     t.equal(err.type, 'response.validation')
     t.equal(err.message, 'Invalid data in response: id should be integer')
+    t.deepEqual(err.data, {id: 'abc'})
   }
 })
 
