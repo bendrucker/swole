@@ -91,6 +91,13 @@ Default: `false`
 
 In `strict` mode, swole will validate *outgoing* payloads in addition to incoming data. This is slow and expensive and should only be used for development/debugging.
 
+###### lowercase
+
+Type: `boolean`  
+Default: `true`
+
+By default, Swole coerces paths into lowercase for simplicity. In practice, this makes everything but your path parameters case insensitive. To make routing case sensitive, set this to `false`.
+
 
 ## License
 

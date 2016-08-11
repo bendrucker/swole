@@ -388,6 +388,49 @@ test('file', function (t) {
   })
 })
 
+test('case insensitive (default)', function (t) {
+  t.plan(1)
+
+  const router = Swole(fixtures.basic, {
+    handlers: {
+      get: function (req, res, callback) {
+        res.end()
+      },
+      post: t.fail.bind(t)
+    }
+  })
+
+  const options = {
+    method: 'get',
+    url: '/casedroute'
+  }
+
+  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
+    t.equal(response.statusCode, 200)
+  })
+})
+
+test('case sensitive', function (t) {
+  t.plan(1)
+
+  const router = Swole(fixtures.basic, {
+    lowercase: false,
+    handlers: {
+      get: function (req, res, callback) {
+        res.end()
+      },
+      post: t.fail.bind(t)
+    }
+  })
+
+  const options = {
+    method: 'get',
+    url: '/casedroute'
+  }
+
+  inject(partialRight(router, (err) => t.equal(err.statusCode, 404)), options, t.fail)
+})
+
 test('throws with missing handler', function (t) {
   t.throws(Swole.bind(null, fixtures.basic, {
     handlers: {
