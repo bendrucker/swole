@@ -60,7 +60,7 @@ function Body (parameters, definitions, ajv) {
 
 function Response (responses, definitions, ajv) {
   const validators = map(responses, function (code, response) {
-    if (response.schema && response.schema.type === 'file') {
+    if (!response.schema || response.schema.type === 'file') {
       return [code, true]
     }
 
