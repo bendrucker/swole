@@ -45,7 +45,12 @@ function createRoutes (router, swagger, options) {
   })
 
   function Route (path, method, data) {
-    const validate = Validate(swagger, path, method, data)
+    const validate = Validate(swagger, {
+      path: path,
+      route: data,
+      verbose: options.strict
+    })
+
     const handlerKey = data['x-handler']
     const handler = options.handlers[handlerKey]
 

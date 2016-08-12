@@ -11,10 +11,19 @@ const TypedError = require('error/typed')
 
 module.exports = Validate
 
-function Validate (swagger, path, method, route) {
-  const ajv = new Ajv({coerceTypes: true})
+function Validate (swagger, options) {
+  const ajv = new Ajv({
+    coerceTypes: true,
+    jsonPointers: true,
+    verbose: options.verbose
+  })
 
-  assert(route.responses, `missing responses in ${path}`)
+  assert(options.path, 'path is required')
+  assert(options.route, 'route is required')
+
+  const route = options.route
+
+  assert(route.responses, `missing responses in ${options.path}`)
 
   return {
     parameters: Parameters(route.parameters, {parameters: swagger.parameters}),
@@ -95,7 +104,7 @@ const ValidationError = TypedError({
   message: 'Invalid data in {source}: {cause}',
   cause: null,
   source: null,
-  data: null
+  schema: null
 })
 
 const ResponseError = TypedError({
@@ -104,7 +113,7 @@ const ResponseError = TypedError({
   message: 'Invalid data in {source}: {cause}',
   cause: null,
   source: null,
-  data: null
+  schema: null
 })
 
 const StatusError = TypedError({
@@ -116,8 +125,7 @@ const StatusError = TypedError({
 function createError (Ctor, errors, data, source) {
   return Ctor({
     source: source,
-    data: data,
-    cause: errors.map((e) => `${e.dataPath.replace(/^\./, '')} ${e.message}`).join(', '),
+    cause: errors.map((e) => `${e.dataPath} ${e.message}`).join(', '),
     errors: errors
   })
 }

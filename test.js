@@ -79,14 +79,15 @@ test('400 get', function (t) {
     t.ok(err, 'returns error')
     t.equal(err.statusCode, 400, 'sets 400 status code')
     t.equal(err.type, 'request.validation')
-    t.equal(err.message, 'Invalid data in parameters: path.id should be integer')
+    t.equal(err.message, 'Invalid data in parameters: /path/id should be integer')
   }
 })
 
 test('400 post', function (t) {
-  t.plan(5)
+  t.plan(6)
 
   const router = Swole(fixtures.basic, {
+    strict: true,
     handlers: {
       get: t.fail.bind(t),
       post: function (req, res, callback) {
@@ -110,8 +111,9 @@ test('400 post', function (t) {
     t.ok(err, 'returns error')
     t.equal(err.statusCode, 400, 'sets 400 status code')
     t.equal(err.type, 'request.validation')
-    t.equal(err.message, 'Invalid data in body: id should be integer')
-    t.deepEqual(err.data, {id: 'abc'})
+    t.equal(err.message, 'Invalid data in body: /id should be integer')
+    t.ok(err.errors)
+    t.equal(err.errors[0].data, 'abc')
   }
 })
 
@@ -212,7 +214,7 @@ test('valid response: buffers', function (t) {
 })
 
 test('invalid response', function (t) {
-  t.plan(5)
+  t.plan(6)
 
   const router = Swole(fixtures.basic, {
     strict: true,
@@ -242,8 +244,9 @@ test('invalid response', function (t) {
     t.ok(err, 'returns error')
     t.equal(err.statusCode, 500, 'sets 500 status code')
     t.equal(err.type, 'response.validation')
-    t.equal(err.message, 'Invalid data in response: id should be integer')
-    t.deepEqual(err.data, {id: 'abc'})
+    t.equal(err.message, 'Invalid data in response: /id should be integer')
+    t.ok(err.errors)
+    t.equal(err.errors[0].data, 'abc')
   }
 })
 
