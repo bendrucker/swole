@@ -18,7 +18,7 @@ const response = require('./response')
 module.exports = Swole
 
 function Swole (swagger, options) {
-  options = extend({lowercase: true}, options)
+  options = extend({lowercase: true, accepts: ['json']}, options)
 
   const router = Router()
   createRoutes(router, swagger, options)
@@ -33,7 +33,7 @@ function Swole (swagger, options) {
 }
 
 function createRoutes (router, swagger, options) {
-  const json = body.json()
+  const parse = createParser(options.accepts)
 
   Object.keys(swagger.paths).forEach(function (path) {
     const route = swagger.paths[path]
@@ -59,11 +59,23 @@ function createRoutes (router, swagger, options) {
     return function handle (req, res, data, callback) {
       series([
         partial(validate.parameters, req, data.params),
-        partial(json, req, res),
+        partial(parse, req, res),
         partial(validate.body, req),
         partial(handler, req, response.wrap(req, res, options.strict && validate.response))
       ], callback)
     }
+  }
+}
+
+function createParser (parsers) {
+  parsers.forEach((key) => assert(body[key], 'invalid body parser: ' + key))
+  const middlewares = parsers.map((key) => body[key]())
+
+  return function parse (req, res, callback) {
+    series(
+      middlewares.map((fn) => partial(fn, req, res)),
+      callback
+    )
   }
 }
 

@@ -84,6 +84,13 @@ Type: `object{function}`
 
 An object containing `req, res, callback` handler functions that match to `x-handler` keys in your [operations objects](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#operationObject).
 
+###### accepts
+
+Type: `array[string]`  
+Default: `['json']`
+
+A list of [body parsers](https://github.com/expressjs/body-parser) to use for parsing request streams.
+
 ###### strict
 
 Type: `boolean`  
