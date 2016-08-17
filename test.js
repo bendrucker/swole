@@ -5,6 +5,7 @@ const inject = require('shot').inject
 const partialRight = require('ap').partialRight
 const json = require('send-json')
 const extend = require('xtend')
+const querystring = require('querystring')
 const Swole = require('./')
 const fixtures = require('./fixtures')
 
@@ -115,6 +116,43 @@ test('400 post', function (t) {
     t.ok(err.errors)
     t.equal(err.errors[0].data, 'abc')
   }
+})
+
+test('custom parser', function (t) {
+  t.plan(4)
+
+  t.throws(Swole.bind(null, fixtures.basic, {accepts: ['lemons']}), /invalid/)
+
+  const router = Swole(fixtures.basic, {
+    handlers: {
+      get: t.fail.bind(t),
+      post: function (req, res, callback) {
+        t.deepEqual(req.body, {id: 123}, 'receives parsed body')
+        json(res, {id: 123})
+        callback()
+      }
+    },
+    accepts: [
+      'json',
+      ['urlencoded', {extended: false}]
+    ]
+  })
+
+  const options = {
+    method: 'post',
+    url: '/users',
+    payload: querystring.stringify({id: 123}),
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded'
+    }
+  }
+
+  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
+    t.equal(response.statusCode, 200, 'responds with 200')
+    t.deepEqual(JSON.parse(response.payload), {
+      id: 123
+    }, 'responds with {id: Number}')
+  })
 })
 
 test('valid response', function (t) {

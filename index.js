@@ -68,8 +68,19 @@ function createRoutes (router, swagger, options) {
 }
 
 function createParser (parsers) {
-  parsers.forEach((key) => assert(body[key], 'invalid body parser: ' + key))
-  const middlewares = parsers.map((key) => body[key]())
+  const middlewares = parsers.map(function (key) {
+    var options = {}
+    if (Array.isArray(key)) {
+      options = key[1]
+      key = key[0]
+    }
+
+    const fn = body[key]
+
+    assert(fn, 'invalid "accepts" value: ' + key)
+
+    return fn(options)
+  })
 
   return function parse (req, res, callback) {
     series(
