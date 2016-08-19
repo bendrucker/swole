@@ -360,6 +360,37 @@ test('unexpected status', function (t) {
   }
 })
 
+test('unexpected status: ignores 500+', function (t) {
+  t.plan(1)
+
+  const router = Swole(fixtures.basic, {
+    strict: true,
+    handlers: {
+      get: t.fail.bind(t),
+      post: function (req, res, callback) {
+        res.once('error', callback)
+        res.statusCode = 500
+        json(res, {
+          id: 123
+        })
+      }
+    }
+  })
+
+  const options = {
+    method: 'post',
+    url: '/users',
+    payload: JSON.stringify({id: 123}),
+    headers: {
+      'content-type': 'application/json'
+    }
+  }
+
+  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
+    t.equal(response.statusCode, 500)
+  })
+})
+
 test('basePath', function (t) {
   t.plan(1)
 

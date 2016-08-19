@@ -79,7 +79,7 @@ function Response (responses, definitions, ajv) {
   return function validateResponse (res, data, callback) {
     const validate = validators[res.statusCode] || validators.default
 
-    if (!validate) {
+    if (!validate && res.statusCode < 500) {
       return callback(StatusError({
         status: res.statusCode
       }))
@@ -91,7 +91,7 @@ function Response (responses, definitions, ajv) {
 
     safeJson(data, function (err, data) {
       if (err) return callback(err)
-      const valid = validate(data)
+      const valid = validate ? validate(data) : true
       if (!valid) return callback(createError(ResponseError, validate.errors, data, 'response'))
       callback()
     })
