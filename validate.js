@@ -89,8 +89,15 @@ function Response (responses, definitions, ajv) {
       return callback()
     }
 
+    if (data.length == 0) {
+      data = null
+    }
+
     safeJson(data, function (err, data) {
-      if (err) return callback(err)
+      if (err) {
+        err.message = 'JSON parse error. Tried to parse: ' + data.slice(0, 400) + '. Original error: ' + err.message
+        return callback(err)
+      }
       const valid = validate ? validate(data) : true
       if (!valid) return callback(createError(ResponseError, validate.errors, data, 'response'))
       callback()
