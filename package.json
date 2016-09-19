@@ -1,7 +1,7 @@
 {
   "name": "swole",
   "main": "index.js",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "HTTP request router for Swagger/OpenAPI",
   "license": "MIT",
   "repository": "bendrucker/swole",
