@@ -38,7 +38,7 @@ test('200 post', function (t) {
     handlers: {
       get: t.fail.bind(t),
       post: function (req, res, callback) {
-        t.deepEqual(req.body, {id: 123}, 'receives parsed body')
+        t.deepEqual(req.body, {id: 123, active: true}, 'receives parsed body')
         json(res, {id: 123})
         callback()
       }
@@ -127,7 +127,7 @@ test('custom parser', function (t) {
     handlers: {
       get: t.fail.bind(t),
       post: function (req, res, callback) {
-        t.deepEqual(req.body, {id: 123}, 'receives parsed body')
+        t.deepEqual(req.body, {id: 123, active: true}, 'receives parsed body')
         json(res, {id: 123})
         callback()
       }

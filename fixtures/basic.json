@@ -87,6 +87,10 @@
       "properties": {
         "id": {
           "type": "integer"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true
         }
       }
     }

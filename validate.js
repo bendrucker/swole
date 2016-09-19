@@ -15,6 +15,7 @@ function Validate (swagger, options) {
   const ajv = new Ajv({
     coerceTypes: true,
     jsonPointers: true,
+    useDefaults: true,
     verbose: options.verbose
   })
 
