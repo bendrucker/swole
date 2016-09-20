@@ -316,8 +316,8 @@ test('invalid response: bad data', function (t) {
 
   function onError (err) {
     t.ok(err, 'returns error')
-    t.equal(err.name, 'SyntaxError')
-    t.ok(/token f/.test(err.message))
+    t.equal(err.name, 'ResponseValidationError')
+    t.ok(/Invalid JSON/.test(err.message))
   }
 })
 

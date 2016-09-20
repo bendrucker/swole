@@ -91,7 +91,14 @@ function Response (responses, definitions, ajv) {
     }
 
     safeJson(data, function (err, data) {
-      if (err) return callback(err)
+      if (err) {
+        return callback(ResponseError({
+          source: 'response',
+          cause: 'Invalid JSON',
+          errors: [err]
+        }))
+      }
+
       const valid = validate ? validate(data) : true
       if (!valid) return callback(createError(ResponseError, validate.errors, data, 'response'))
       callback()
