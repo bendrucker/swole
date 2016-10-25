@@ -84,6 +84,12 @@ Type: `object{function}`
 
 An object containing `req, res, callback` handler functions that match to `x-handler` keys in your [operations objects](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#operationObject).
 
+###### hooks
+
+Type: `array[function]`
+
+An array of `req, res, callback` handler functions that will be called in series before executing handlers. These functions are run after the parameters for the request have been parsed and validated. 
+
 ###### accepts
 
 Type: `array[string]`  

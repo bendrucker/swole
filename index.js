@@ -61,6 +61,7 @@ function createRoutes (router, swagger, options) {
         partial(validate.parameters, req, data.params),
         partial(parse, req, res),
         partial(validate.body, req),
+        partial(hooks, options.hooks, req, res),
         partial(handler, req, response.wrap(req, res, options.strict && validate.response))
       ], callback)
     }
@@ -106,4 +107,13 @@ function createPath (path, options) {
         .replace(/{([A-Za-z0-9]+)}/, (string, match) => ':' + match)
     })
     .join('/')
+}
+
+function hooks (fns, req, res, callback) {
+  if (!fns) return callback()
+
+  series(
+    fns.map((fn) => partial(fn, req, res)),
+    callback
+  )
 }

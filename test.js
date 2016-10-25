@@ -118,6 +118,34 @@ test('400 post', function (t) {
   }
 })
 
+test('pre-handler hooks', function (t) {
+  t.plan(4)
+
+  const router = Swole(fixtures.basic, {
+    handlers: {
+      get: function (req, res, callback) {
+        t.deepEqual(req.params, {id: 123}, 'receives parsed params')
+        json(res, {id: 123})
+        callback()
+      },
+      post: t.fail.bind(t)
+    },
+    hooks: [hook]
+  })
+
+  inject(partialRight(router, (err) => err && t.end(err)), {url: '/users/123'}, function (response) {
+    t.equal(response.statusCode, 200, 'responds with 200')
+    t.deepEqual(JSON.parse(response.payload), {
+      id: 123
+    }, 'responds with {id: Number}')
+  })
+
+  function hook (req, res, callback) {
+    t.ok(req.params)
+    callback()
+  }
+})
+
 test('custom parser', function (t) {
   t.plan(4)
 
