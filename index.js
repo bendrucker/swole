@@ -56,9 +56,10 @@ function createRoutes (router, swagger, options) {
 
     assert.equal(typeof handler, 'function', `invalid x-handler for ${path}: ${handlerKey} (${handler})`)
 
-    return function handle (req, res, data, callback) {
+    return function handle (req, res, route, callback) {
       series([
-        partial(validate.parameters, req, data.params),
+        partial(identify, req, path, data),
+        partial(validate.parameters, req, route.params),
         partial(parse, req, res),
         partial(validate.body, req),
         partial(hooks, options.hooks, req, res),
@@ -66,6 +67,11 @@ function createRoutes (router, swagger, options) {
       ], callback)
     }
   }
+}
+
+function identify (req, path, operation, callback) {
+  req.swole = {path, operation}
+  callback()
 }
 
 function createParser (parsers) {

@@ -66,7 +66,7 @@ GET /beep
 
 Creates a new Swole API handler using a [Swagger](https://github.com/OAI/OpenAPI-Specification) definition and options.
 
-Returns a `req, res, callback` middleware function.
+Returns a `req, res, callback` middleware function. Swole will append the matched path and operation values as `req.swole` as a `{path, operation}` object.
 
 ##### swagger
 

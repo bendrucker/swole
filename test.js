@@ -118,6 +118,31 @@ test('400 post', function (t) {
   }
 })
 
+test('appends `swole` data to req', function (t) {
+  t.plan(5)
+
+  const router = Swole(fixtures.basic, {
+    handlers: {
+      get: function (req, res, callback) {
+        t.ok(req.swole)
+        t.equal(req.swole.path, '/users/{id}')
+        t.ok(req.swole.operation)
+
+        json(res, {id: 123})
+        callback()
+      },
+      post: t.fail.bind(t)
+    }
+  })
+
+  inject(partialRight(router, (err) => err && t.end(err)), {url: '/users/123'}, function (response) {
+    t.equal(response.statusCode, 200, 'responds with 200')
+    t.deepEqual(JSON.parse(response.payload), {
+      id: 123
+    }, 'responds with {id: Number}')
+  })
+})
+
 test('pre-handler hooks', function (t) {
   t.plan(4)
 
