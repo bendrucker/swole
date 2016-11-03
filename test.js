@@ -569,3 +569,45 @@ test('throws with missing handler', function (t) {
 
   t.end()
 })
+
+test('throws when keywords are used as siblings of $ref', function (t) {
+  const schema = {
+    swagger: '2.0',
+    info: {
+      title: 'API'
+    },
+    paths: {
+      '/foo': {
+        post: {
+          'x-handler': 'get',
+          parameters: [
+            {
+              name: 'user',
+              in: 'body',
+              schema: {
+                $ref: '#/',
+                minimum: 0
+              }
+            }
+          ],
+          responses: {
+            200: {
+              description: 'OK'
+            }
+          }
+        }
+      }
+    }
+  }
+
+  t.throws(Swole.bind(null, schema, {
+    handlers: {
+      get: function (req, res, callback) {
+        res.end()
+      }
+    }
+  }), /ref: validation keywords/)
+
+  t.end()
+})
+

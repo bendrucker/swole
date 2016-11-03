@@ -16,6 +16,7 @@ function Validate (swagger, options) {
     coerceTypes: true,
     jsonPointers: true,
     useDefaults: true,
+    extendRefs: 'fail',
     verbose: options.verbose
   })
 
