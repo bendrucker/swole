@@ -611,3 +611,43 @@ test('throws when keywords are used as siblings of $ref', function (t) {
   t.end()
 })
 
+test('throws when unknown json schema formats are used', function (t) {
+  const schema = {
+    swagger: '2.0',
+    info: {
+      title: 'API'
+    },
+    paths: {
+      '/foo': {
+        post: {
+          'x-handler': 'get',
+          parameters: [
+            {
+              name: 'user',
+              in: 'body',
+              schema: {
+                format: 'great'
+              }
+            }
+          ],
+          responses: {
+            200: {
+              description: 'OK'
+            }
+          }
+        }
+      }
+    }
+  }
+
+  t.throws(Swole.bind(null, schema, {
+    handlers: {
+      get: function (req, res, callback) {
+        res.end()
+      }
+    }
+  }), /unknown format/)
+
+  t.end()
+})
+
