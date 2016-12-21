@@ -118,6 +118,31 @@ test('400 post', function (t) {
   }
 })
 
+test('410 get', function (t) {
+  t.plan(3)
+
+  const router = Swole(fixtures.basic, {
+    strict: true,
+    handlers: {
+      get: t.fail.bind(t),
+      post: t.fail.bind(t)
+    }
+  })
+
+  const options = {
+    method: 'get',
+    url: '/deprecated'
+  }
+
+  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+
+  function onError (err) {
+    t.ok(err, 'returns error')
+    t.equal(err.statusCode, 410, 'sets 410 status code')
+    t.equal(err.type, 'request.deprecated')
+  }
+})
+
 test('appends `swole` data to req', function (t) {
   t.plan(5)
 

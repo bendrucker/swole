@@ -48,7 +48,8 @@ function createRoutes (router, swagger, options) {
     const validate = Validate(swagger, {
       path: path,
       route: data,
-      verbose: options.strict
+      verbose: options.strict,
+      deprecate: options.strict
     })
 
     const handlerKey = data['x-handler']
@@ -59,6 +60,7 @@ function createRoutes (router, swagger, options) {
     return function handle (req, res, route, callback) {
       series([
         partial(identify, req, path, data),
+        partial(validate.deprecated, req, res),
         partial(validate.parameters, req, route.params),
         partial(parse, req, res),
         partial(validate.body, req),

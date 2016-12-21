@@ -29,9 +29,22 @@ function Validate (swagger, options) {
   assert(route.responses, `missing responses in ${options.path}`)
 
   return {
+    deprecated: Deprecated(options.deprecate && route.deprecated),
     parameters: Parameters(route.parameters, {parameters: swagger.parameters}),
     body: Body(route.parameters, swagger.definitions, ajv),
     response: Response(route.responses, swagger.definitions, ajv)
+  }
+}
+
+function Deprecated (deprecate) {
+  if (!deprecate) return allow
+
+  return function deprecated (req, res, callback) {
+    callback(DeprecationError())
+  }
+
+  function allow (req, res, callback) {
+    callback()
   }
 }
 
@@ -79,7 +92,7 @@ function Response (responses, definitions, ajv) {
     return [code, ajv.compile(extend(response.schema, {definitions}))]
   })
 
-  return function validateResponse (res, data, callback) {
+  return function validateResponse (req, res, data, callback) {
     const validate = validators[res.statusCode] || validators.default
 
     if (!validate && res.statusCode < 500) {
@@ -115,6 +128,12 @@ const ValidationError = TypedError({
   cause: null,
   source: null,
   schema: null
+})
+
+const DeprecationError = TypedError({
+  type: 'request.deprecated',
+  statusCode: 410,
+  message: 'Route is deprecated and may not be accessed in strict mode'
 })
 
 const ResponseError = TypedError({

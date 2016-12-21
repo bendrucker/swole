@@ -76,6 +76,17 @@
           }
         }
       }
+    },
+    "/deprecated": {
+      "get": {
+        "x-handler": "get",
+        "deprecated": true,
+        "responses": {
+          "200": {
+            "description": "data"
+          }
+        }
+      }
     }
   },
   "definitions": {
