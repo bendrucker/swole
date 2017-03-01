@@ -80,7 +80,7 @@ test('400 get', function (t) {
     t.ok(err, 'returns error')
     t.equal(err.statusCode, 400, 'sets 400 status code')
     t.equal(err.type, 'request.validation')
-    t.equal(err.message, 'Invalid data in parameters: /path/id should be integer')
+    t.equal(err.message, 'Invalid data in parameters: /path/user_id should be integer')
   }
 })
 
@@ -150,7 +150,7 @@ test('appends `swole` data to req', function (t) {
     handlers: {
       get: function (req, res, callback) {
         t.ok(req.swole)
-        t.equal(req.swole.path, '/users/{id}')
+        t.equal(req.swole.path, '/users/{user_id}')
         t.ok(req.swole.operation)
 
         json(res, {id: 123})
@@ -174,7 +174,7 @@ test('pre-handler hooks', function (t) {
   const router = Swole(fixtures.basic, {
     handlers: {
       get: function (req, res, callback) {
-        t.deepEqual(req.params, {id: 123}, 'receives parsed params')
+        t.deepEqual(req.params, {user_id: 123}, 'receives parsed params')
         json(res, {id: 123})
         callback()
       },

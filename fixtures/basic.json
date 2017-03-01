@@ -4,12 +4,12 @@
     "title": "API"
   },
   "paths": {
-    "/users/{id}": {
+    "/users/{user_id}": {
       "get": {
         "x-handler": "get",
         "parameters": [
           {
-            "name": "id",
+            "name": "user_id",
             "in": "path",
             "type": "integer"
           }

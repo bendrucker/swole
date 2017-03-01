@@ -112,7 +112,7 @@ function createPath (path, options) {
     .map(function (segment) {
       return segment
         .replace(/^([A-Za-z0-9]+)$/, (string, match) => options.lowercase ? match.toLowerCase() : match)
-        .replace(/{([A-Za-z0-9]+)}/, (string, match) => ':' + match)
+        .replace(/{([A-Za-z0-9_-]+)}/, (string, match) => ':' + match)
     })
     .join('/')
 }
