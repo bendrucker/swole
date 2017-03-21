@@ -15,7 +15,7 @@ test('200 get', function (t) {
   const router = Swole(fixtures.basic, {
     handlers: {
       get: function (req, res, callback) {
-        t.deepEqual(req.params, {id: 123}, 'receives parsed params')
+        t.deepEqual(req.params, {user_id: 123}, 'receives parsed params')
         json(res, {id: 123})
         callback()
       },
