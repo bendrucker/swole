@@ -37,7 +37,7 @@
   "dependencies": {
     "ajv": "~4.10.3",
     "ap": "~0.2.0",
-    "body-parser": "~1.15.2",
+    "body-parser": "~1.18.2",
     "delayed-response": "~2.0.0",
     "error": "~7.0.2",
     "fn-unary": "~1.0.0",
