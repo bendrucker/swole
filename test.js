@@ -118,6 +118,39 @@ test('400 post', function (t) {
   }
 })
 
+test('400 post - root', function (t) {
+  t.plan(5)
+
+  const router = Swole(fixtures.basic, {
+    strict: true,
+    handlers: {
+      get: t.fail.bind(t),
+      post: function (req, res, callback) {
+        t.fail('handler should not be called')
+      }
+    }
+  })
+
+  const options = {
+    method: 'post',
+    url: '/users',
+    payload: undefined,
+    headers: {
+      'content-type': 'application/json'
+    }
+  }
+
+  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+
+  function onError (err) {
+    t.ok(err, 'returns error')
+    t.equal(err.statusCode, 400, 'sets 400 status code')
+    t.equal(err.type, 'request.validation')
+    t.equal(err.message, 'Invalid data in body: should have required property \'id\'')
+    t.ok(err.errors)
+  }
+})
+
 test('410 get', function (t) {
   t.plan(3)
 
