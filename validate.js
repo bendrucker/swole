@@ -154,7 +154,7 @@ const StatusError = TypedError({
 function createError (Ctor, errors, data, source) {
   return Ctor({
     source: source,
-    cause: errors.map((e) => [e.dataPath, e.message].filter(Boolean).join(', '),
+    cause: errors.map((e) => [e.dataPath, e.message].filter(Boolean).join(' ')).join(', '),
     errors: errors
   })
 }
