@@ -339,7 +339,7 @@ test('valid response: buffers', function (t) {
       get: t.fail.bind(t),
       post: function (req, res, callback) {
         res.once('error', callback)
-        res.write(new Buffer(JSON.stringify({
+        res.write(Buffer.from(JSON.stringify({
           id: 123
         })))
         res.end()
@@ -708,4 +708,3 @@ test('throws when unknown json schema formats are used', function (t) {
 
   t.end()
 })
-
