@@ -31,8 +31,8 @@ function Validate (swagger, options) {
   return {
     deprecated: Deprecated(options.deprecate && route.deprecated),
     parameters: Parameters(route.parameters, {parameters: swagger.parameters}),
-    body: Body(route.parameters, swagger.definitions, ajv),
-    response: Response(route.responses, swagger.definitions, ajv)
+    body: Body(route, swagger, ajv),
+    response: Response(route.responses, swagger, ajv)
   }
 }
 
@@ -70,11 +70,16 @@ function Parameters (parameters, data) {
   }
 }
 
-function Body (parameters, definitions, ajv) {
-  const parameter = (parameters || []).find((p) => p.in === 'body')
+function Body (route, {definitions, components}, ajv) {
+  let parameter
+  if (!route.requestBody) {
+    parameter = (route.parameters || []).find((p) => p.in === 'body')
+  } else { // openAPI 3
+    parameter = route.requestBody.content['application/json']
+  }
   if (!parameter) return (req, callback) => callback()
 
-  const validate = ajv.compile(extend(parameter.schema, {definitions}))
+  const validate = ajv.compile(extend(parameter.schema, {definitions, components}))
 
   return function validateBody (req, callback) {
     const valid = validate(req.body)
@@ -83,8 +88,16 @@ function Body (parameters, definitions, ajv) {
   }
 }
 
-function Response (responses, definitions, ajv) {
+function Response (responses, {definitions, components}, ajv) {
   const validators = map(responses, function (code, response) {
+    if (response.content) { // openAPI 3
+      const schema = (response.content['*/*'] || response.content['application/json']).schema
+      if (schema.type === 'string' && (schema.format === 'binary' || schema.format === 'byte')) {
+        return [code, true]
+      }
+      return [code, ajv.compile(extend(schema, {components}))]
+    }
+
     if (!response.schema || response.schema.type === 'file') {
       return [code, true]
     }

@@ -1,0 +1,130 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API",
+    "version": ""
+  },
+  "paths": {
+    "/users/{user_id}": {
+      "get": {
+        "x-handler": "get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "x-handler": "post",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paramless": {
+      "get": {
+        "x-handler": "get",
+        "responses": {
+          "200": {
+            "description": "It's a response, ya happy?"
+          }
+        }
+      }
+    },
+    "/file": {
+      "get": {
+        "x-handler": "get",
+        "responses": {
+          "200": {
+            "description": "It's a file",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/casedRoute": {
+      "get": {
+        "x-handler": "get",
+        "responses": {
+          "200": {
+            "description": "It's data"
+          }
+        }
+      }
+    },
+    "/deprecated": {
+      "get": {
+        "x-handler": "get",
+        "deprecated": true,
+        "responses": {
+          "200": {
+            "description": "data"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    }
+  }
+}
