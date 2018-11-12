@@ -629,34 +629,35 @@ test('throws with missing handler', function (t) {
 })
 
 test('throws when keywords are used as siblings of $ref', function (t) {
-  const schema = {
-    swagger: '2.0',
-    info: {
-      title: 'API'
+  const schema = JSON.parse(`{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "API",
+      "version": ""
     },
-    paths: {
-      '/foo': {
-        post: {
-          'x-handler': 'get',
-          parameters: [
-            {
-              name: 'user',
-              in: 'body',
-              schema: {
-                $ref: '#/',
-                minimum: 0
-              }
+    "paths": {
+      "/foo": {
+        "post": {
+          "x-handler": "get",
+          "responses": {
+            "200": {
+              "description": "OK"
             }
-          ],
-          responses: {
-            200: {
-              description: 'OK'
+          },
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/",
+                  "minimum": 0
+                }
+              }
             }
           }
         }
       }
     }
-  }
+  }`)
 
   t.throws(Swole.bind(null, schema, {
     handlers: {
@@ -670,33 +671,34 @@ test('throws when keywords are used as siblings of $ref', function (t) {
 })
 
 test('throws when unknown json schema formats are used', function (t) {
-  const schema = {
-    swagger: '2.0',
-    info: {
-      title: 'API'
+  const schema = JSON.parse(`{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "API",
+      "version": ""
     },
-    paths: {
-      '/foo': {
-        post: {
-          'x-handler': 'get',
-          parameters: [
-            {
-              name: 'user',
-              in: 'body',
-              schema: {
-                format: 'great'
-              }
+    "paths": {
+      "/foo": {
+        "post": {
+          "x-handler": "get",
+          "responses": {
+            "200": {
+              "description": "OK"
             }
-          ],
-          responses: {
-            200: {
-              description: 'OK'
+          },
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "format": "great"
+                }
+              }
             }
           }
         }
       }
     }
-  }
+  }`)
 
   t.throws(Swole.bind(null, schema, {
     handlers: {
