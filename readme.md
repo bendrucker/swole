@@ -1,4 +1,4 @@
-# swole [![Build Status](https://travis-ci.org/bendrucker/swole.svg?branch=master)](https://travis-ci.org/bendrucker/swole)
+# swole [![Build Status](https://travis-ci.org/bendrucker/swole.svg?branch=master)](https://travis-ci.org/bendrucker/swole) [![Greenkeeper badge](https://badges.greenkeeper.io/bendrucker/swole.svg)](https://greenkeeper.io/)
 
 > HTTP request router for [Swagger/OpenAPI](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md)
 
