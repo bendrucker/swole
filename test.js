@@ -15,15 +15,15 @@ test('200 get', function (t) {
   const router = Swole(fixtures.basic, {
     handlers: {
       get: function (req, res, callback) {
-        t.deepEqual(req.params, {user_id: 123}, 'receives parsed params')
-        json(res, {id: 123})
+        t.deepEqual(req.params, { user_id: 123 }, 'receives parsed params')
+        json(res, { id: 123 })
         callback()
       },
       post: t.fail.bind(t)
     }
   })
 
-  inject(partialRight(router, (err) => err && t.end(err)), {url: '/users/123'}, function (response) {
+  inject(partialRight(router, (err) => err && t.end(err)), { url: '/users/123' }, function (response) {
     t.equal(response.statusCode, 200, 'responds with 200')
     t.deepEqual(JSON.parse(response.payload), {
       id: 123
@@ -38,8 +38,8 @@ test('200 post', function (t) {
     handlers: {
       get: t.fail.bind(t),
       post: function (req, res, callback) {
-        t.deepEqual(req.body, {id: 123, active: true}, 'receives parsed body')
-        json(res, {id: 123})
+        t.deepEqual(req.body, { id: 123, active: true }, 'receives parsed body')
+        json(res, { id: 123 })
         callback()
       }
     }
@@ -48,7 +48,7 @@ test('200 post', function (t) {
   const options = {
     method: 'post',
     url: '/users',
-    payload: JSON.stringify({id: 123}),
+    payload: JSON.stringify({ id: 123 }),
     headers: {
       'content-type': 'application/json'
     }
@@ -74,7 +74,7 @@ test('400 get', function (t) {
     }
   })
 
-  inject(partialRight(router, onError), {url: '/users/boop'}, t.fail.bind('no response'))
+  inject(partialRight(router, onError), { url: '/users/boop' }, t.fail.bind('no response'))
 
   function onError (err) {
     t.ok(err, 'returns error')
@@ -100,7 +100,7 @@ test('400 post', function (t) {
   const options = {
     method: 'post',
     url: '/users',
-    payload: JSON.stringify({id: 'abc'}),
+    payload: JSON.stringify({ id: 'abc' }),
     headers: {
       'content-type': 'application/json'
     }
@@ -186,14 +186,14 @@ test('appends `swole` data to req', function (t) {
         t.equal(req.swole.path, '/users/{user_id}')
         t.ok(req.swole.operation)
 
-        json(res, {id: 123})
+        json(res, { id: 123 })
         callback()
       },
       post: t.fail.bind(t)
     }
   })
 
-  inject(partialRight(router, (err) => err && t.end(err)), {url: '/users/123'}, function (response) {
+  inject(partialRight(router, (err) => err && t.end(err)), { url: '/users/123' }, function (response) {
     t.equal(response.statusCode, 200, 'responds with 200')
     t.deepEqual(JSON.parse(response.payload), {
       id: 123
@@ -207,8 +207,8 @@ test('pre-handler hooks', function (t) {
   const router = Swole(fixtures.basic, {
     handlers: {
       get: function (req, res, callback) {
-        t.deepEqual(req.params, {user_id: 123}, 'receives parsed params')
-        json(res, {id: 123})
+        t.deepEqual(req.params, { user_id: 123 }, 'receives parsed params')
+        json(res, { id: 123 })
         callback()
       },
       post: t.fail.bind(t)
@@ -216,7 +216,7 @@ test('pre-handler hooks', function (t) {
     hooks: [hook]
   })
 
-  inject(partialRight(router, (err) => err && t.end(err)), {url: '/users/123'}, function (response) {
+  inject(partialRight(router, (err) => err && t.end(err)), { url: '/users/123' }, function (response) {
     t.equal(response.statusCode, 200, 'responds with 200')
     t.deepEqual(JSON.parse(response.payload), {
       id: 123
@@ -232,27 +232,27 @@ test('pre-handler hooks', function (t) {
 test('custom parser', function (t) {
   t.plan(4)
 
-  t.throws(Swole.bind(null, fixtures.basic, {accepts: ['lemons']}), /invalid/)
+  t.throws(Swole.bind(null, fixtures.basic, { accepts: ['lemons'] }), /invalid/)
 
   const router = Swole(fixtures.basic, {
     handlers: {
       get: t.fail.bind(t),
       post: function (req, res, callback) {
-        t.deepEqual(req.body, {id: 123, active: true}, 'receives parsed body')
-        json(res, {id: 123})
+        t.deepEqual(req.body, { id: 123, active: true }, 'receives parsed body')
+        json(res, { id: 123 })
         callback()
       }
     },
     accepts: [
       'json',
-      ['urlencoded', {extended: false}]
+      ['urlencoded', { extended: false }]
     ]
   })
 
   const options = {
     method: 'post',
     url: '/users',
-    payload: querystring.stringify({id: 123}),
+    payload: querystring.stringify({ id: 123 }),
     headers: {
       'content-type': 'application/x-www-form-urlencoded'
     }
@@ -285,7 +285,7 @@ test('valid response', function (t) {
   const options = {
     method: 'post',
     url: '/users',
-    payload: JSON.stringify({id: 123}),
+    payload: JSON.stringify({ id: 123 }),
     headers: {
       'content-type': 'application/json'
     }
@@ -293,7 +293,7 @@ test('valid response', function (t) {
 
   inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
     t.equal(response.statusCode, 200)
-    t.deepEqual(JSON.parse(response.payload), {id: 123})
+    t.deepEqual(JSON.parse(response.payload), { id: 123 })
   })
 })
 
@@ -318,7 +318,7 @@ test('valid response: no end chunk', function (t) {
   const options = {
     method: 'post',
     url: '/users',
-    payload: JSON.stringify({id: 123}),
+    payload: JSON.stringify({ id: 123 }),
     headers: {
       'content-type': 'application/json'
     }
@@ -326,7 +326,7 @@ test('valid response: no end chunk', function (t) {
 
   inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
     t.equal(response.statusCode, 200)
-    t.deepEqual(JSON.parse(response.payload), {id: 123})
+    t.deepEqual(JSON.parse(response.payload), { id: 123 })
   })
 })
 
@@ -350,7 +350,7 @@ test('valid response: buffers', function (t) {
   const options = {
     method: 'post',
     url: '/users',
-    payload: JSON.stringify({id: 123}),
+    payload: JSON.stringify({ id: 123 }),
     headers: {
       'content-type': 'application/json'
     }
@@ -358,7 +358,7 @@ test('valid response: buffers', function (t) {
 
   inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
     t.equal(response.statusCode, 200)
-    t.deepEqual(JSON.parse(response.payload), {id: 123})
+    t.deepEqual(JSON.parse(response.payload), { id: 123 })
   })
 })
 
@@ -381,7 +381,7 @@ test('invalid response', function (t) {
   const options = {
     method: 'post',
     url: '/users',
-    payload: JSON.stringify({id: 123}),
+    payload: JSON.stringify({ id: 123 }),
     headers: {
       'content-type': 'application/json'
     }
@@ -417,7 +417,7 @@ test('invalid response: bad data', function (t) {
   const options = {
     method: 'post',
     url: '/users',
-    payload: JSON.stringify({id: 123}),
+    payload: JSON.stringify({ id: 123 }),
     headers: {
       'content-type': 'application/json'
     }
@@ -456,7 +456,7 @@ test('unexpected status', function (t) {
   const options = {
     method: 'post',
     url: '/users',
-    payload: JSON.stringify({id: 123}),
+    payload: JSON.stringify({ id: 123 }),
     headers: {
       'content-type': 'application/json'
     }
@@ -491,7 +491,7 @@ test('unexpected status: ignores 500+', function (t) {
   const options = {
     method: 'post',
     url: '/users',
-    payload: JSON.stringify({id: 123}),
+    payload: JSON.stringify({ id: 123 }),
     headers: {
       'content-type': 'application/json'
     }
@@ -505,7 +505,7 @@ test('unexpected status: ignores 500+', function (t) {
 test('basePath', function (t) {
   t.plan(1)
 
-  const router = Swole(extend(fixtures.basic, {basePath: '/boop'}), {
+  const router = Swole(extend(fixtures.basic, { basePath: '/boop' }), {
     handlers: {
       get: t.fail.bind(t),
       post: function (req, res, callback) {
@@ -517,7 +517,7 @@ test('basePath', function (t) {
   const options = {
     method: 'post',
     url: '/boop/users',
-    payload: JSON.stringify({id: 123}),
+    payload: JSON.stringify({ id: 123 }),
     headers: {
       'content-type': 'application/json'
     }

@@ -30,7 +30,7 @@ function Validate (swagger, options) {
 
   return {
     deprecated: Deprecated(options.deprecate && route.deprecated),
-    parameters: Parameters(route.parameters, {parameters: swagger.parameters}),
+    parameters: Parameters(route.parameters, { parameters: swagger.parameters }),
     body: Body(route.parameters, swagger.definitions, ajv),
     response: Response(route.responses, swagger.definitions, ajv)
   }
@@ -74,7 +74,7 @@ function Body (parameters, definitions, ajv) {
   const parameter = (parameters || []).find((p) => p.in === 'body')
   if (!parameter) return (req, callback) => callback()
 
-  const validate = ajv.compile(extend(parameter.schema, {definitions}))
+  const validate = ajv.compile(extend(parameter.schema, { definitions }))
 
   return function validateBody (req, callback) {
     const valid = validate(req.body)
@@ -89,7 +89,7 @@ function Response (responses, definitions, ajv) {
       return [code, true]
     }
 
-    return [code, ajv.compile(extend(response.schema, {definitions}))]
+    return [code, ajv.compile(extend(response.schema, { definitions }))]
   })
 
   return function validateResponse (req, res, data, callback) {

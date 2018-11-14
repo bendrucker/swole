@@ -3,7 +3,7 @@
 const extend = require('xtend')
 const Router = require('http-hash-router')
 const map = require('map-obj')
-const assert = require('assert')
+const assert = require('assert').strict
 const partial = require('ap').partial
 const series = require('run-series')
 const unary = require('fn-unary')
@@ -18,7 +18,7 @@ const response = require('./response')
 module.exports = Swole
 
 function Swole (swagger, options) {
-  options = extend({lowercase: true, accepts: ['json']}, options)
+  options = extend({ lowercase: true, accepts: ['json'] }, options)
 
   const router = Router()
   createRoutes(router, swagger, options)
@@ -72,7 +72,7 @@ function createRoutes (router, swagger, options) {
 }
 
 function identify (req, path, operation, callback) {
-  req.swole = {path, operation}
+  req.swole = { path, operation }
   callback()
 }
 
