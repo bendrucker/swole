@@ -3,7 +3,7 @@
 const extend = require('xtend')
 const Router = require('http-hash-router')
 const map = require('map-obj')
-const assert = require('assert').strict
+const assert = require('assert')
 const partial = require('ap').partial
 const series = require('run-series')
 const unary = require('fn-unary')
@@ -55,7 +55,7 @@ function createRoutes (router, swagger, options) {
     const handlerKey = data['x-handler']
     const handler = options.handlers[handlerKey]
 
-    assert.equal(typeof handler, 'function', `invalid x-handler for ${path}: ${handlerKey} (${handler})`)
+    assert.strictEqual(typeof handler, 'function', `invalid x-handler for ${path}: ${handlerKey} (${handler})`)
 
     return function handle (req, res, route, callback) {
       series([
