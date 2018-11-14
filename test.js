@@ -1,7 +1,7 @@
 'use strict'
 
-const test = require('tape')
-const inject = require('shot').inject
+const test = require('blue-tape')
+const { inject } = require('shot')
 const partialRight = require('ap').partialRight
 const json = require('send-json')
 const extend = require('xtend')
@@ -9,7 +9,7 @@ const querystring = require('querystring')
 const Swole = require('./')
 const fixtures = require('./fixtures')
 
-test('200 get', function (t) {
+test('200 get', async function (t) {
   t.plan(3)
 
   const router = Swole(fixtures.basic, {
@@ -23,15 +23,15 @@ test('200 get', function (t) {
     }
   })
 
-  inject(partialRight(router, (err) => err && t.end(err)), { url: '/users/123' }, function (response) {
-    t.equal(response.statusCode, 200, 'responds with 200')
-    t.deepEqual(JSON.parse(response.payload), {
-      id: 123
-    }, 'responds with {id: Number}')
-  })
+  const response = await inject(partialRight(router, (err) => err && t.end(err)), { url: '/users/123' })
+
+  t.equal(response.statusCode, 200, 'responds with 200')
+  t.deepEqual(JSON.parse(response.payload), {
+    id: 123
+  }, 'responds with {id: Number}')
 })
 
-test('200 post', function (t) {
+test('200 post', async function (t) {
   t.plan(3)
 
   const router = Swole(fixtures.basic, {
@@ -54,15 +54,15 @@ test('200 post', function (t) {
     }
   }
 
-  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
-    t.equal(response.statusCode, 200, 'responds with 200')
-    t.deepEqual(JSON.parse(response.payload), {
-      id: 123
-    }, 'responds with {id: Number}')
-  })
+  const response = await inject(partialRight(router, (err) => err && t.end(err)), options)
+
+  t.equal(response.statusCode, 200, 'responds with 200')
+  t.deepEqual(JSON.parse(response.payload), {
+    id: 123
+  }, 'responds with {id: Number}')
 })
 
-test('400 get', function (t) {
+test('400 get', async function (t) {
   t.plan(4)
 
   const router = Swole(fixtures.basic, {
@@ -74,7 +74,7 @@ test('400 get', function (t) {
     }
   })
 
-  inject(partialRight(router, onError), { url: '/users/boop' }, t.fail.bind('no response'))
+  inject(partialRight(router, onError), { url: '/users/boop' }).then(t.fail.bind('no response'))
 
   function onError (err) {
     t.ok(err, 'returns error')
@@ -106,7 +106,7 @@ test('400 post', function (t) {
     }
   }
 
-  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+  inject(partialRight(router, onError), options).then(t.fail.bind('no response'))
 
   function onError (err) {
     t.ok(err, 'returns error')
@@ -140,7 +140,7 @@ test('400 post - root', function (t) {
     }
   }
 
-  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+  inject(partialRight(router, onError), options).then(t.fail.bind('no response'))
 
   function onError (err) {
     t.ok(err, 'returns error')
@@ -167,7 +167,7 @@ test('410 get', function (t) {
     url: '/deprecated'
   }
 
-  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+  inject(partialRight(router, onError), options).then(t.fail.bind('no response'))
 
   function onError (err) {
     t.ok(err, 'returns error')
@@ -176,7 +176,7 @@ test('410 get', function (t) {
   }
 })
 
-test('appends `swole` data to req', function (t) {
+test('appends `swole` data to req', async function (t) {
   t.plan(5)
 
   const router = Swole(fixtures.basic, {
@@ -193,15 +193,14 @@ test('appends `swole` data to req', function (t) {
     }
   })
 
-  inject(partialRight(router, (err) => err && t.end(err)), { url: '/users/123' }, function (response) {
-    t.equal(response.statusCode, 200, 'responds with 200')
-    t.deepEqual(JSON.parse(response.payload), {
-      id: 123
-    }, 'responds with {id: Number}')
-  })
+  const response = await inject(partialRight(router, (err) => err && t.end(err)), { url: '/users/123' })
+  t.equal(response.statusCode, 200, 'responds with 200')
+  t.deepEqual(JSON.parse(response.payload), {
+    id: 123
+  }, 'responds with {id: Number}')
 })
 
-test('pre-handler hooks', function (t) {
+test('pre-handler hooks', async function (t) {
   t.plan(4)
 
   const router = Swole(fixtures.basic, {
@@ -216,12 +215,12 @@ test('pre-handler hooks', function (t) {
     hooks: [hook]
   })
 
-  inject(partialRight(router, (err) => err && t.end(err)), { url: '/users/123' }, function (response) {
-    t.equal(response.statusCode, 200, 'responds with 200')
-    t.deepEqual(JSON.parse(response.payload), {
-      id: 123
-    }, 'responds with {id: Number}')
-  })
+  const response = await inject(partialRight(router, (err) => err && t.end(err)), { url: '/users/123' })
+
+  t.equal(response.statusCode, 200, 'responds with 200')
+  t.deepEqual(JSON.parse(response.payload), {
+    id: 123
+  }, 'responds with {id: Number}')
 
   function hook (req, res, callback) {
     t.ok(req.params)
@@ -229,7 +228,7 @@ test('pre-handler hooks', function (t) {
   }
 })
 
-test('custom parser', function (t) {
+test('custom parser', async function (t) {
   t.plan(4)
 
   t.throws(Swole.bind(null, fixtures.basic, { accepts: ['lemons'] }), /invalid/)
@@ -258,15 +257,15 @@ test('custom parser', function (t) {
     }
   }
 
-  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
-    t.equal(response.statusCode, 200, 'responds with 200')
-    t.deepEqual(JSON.parse(response.payload), {
-      id: 123
-    }, 'responds with {id: Number}')
-  })
+  const response = await inject(partialRight(router, (err) => err && t.end(err)), options)
+
+  t.equal(response.statusCode, 200, 'responds with 200')
+  t.deepEqual(JSON.parse(response.payload), {
+    id: 123
+  }, 'responds with {id: Number}')
 })
 
-test('valid response', function (t) {
+test('valid response', async function (t) {
   t.plan(2)
 
   const router = Swole(fixtures.basic, {
@@ -291,13 +290,13 @@ test('valid response', function (t) {
     }
   }
 
-  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
-    t.equal(response.statusCode, 200)
-    t.deepEqual(JSON.parse(response.payload), { id: 123 })
-  })
+  const response = await inject(partialRight(router, (err) => err && t.end(err)), options)
+
+  t.equal(response.statusCode, 200)
+  t.deepEqual(JSON.parse(response.payload), { id: 123 })
 })
 
-test('valid response: no end chunk', function (t) {
+test('valid response: no end chunk', async function (t) {
   t.plan(2)
 
   const router = Swole(fixtures.basic, {
@@ -324,13 +323,13 @@ test('valid response: no end chunk', function (t) {
     }
   }
 
-  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
-    t.equal(response.statusCode, 200)
-    t.deepEqual(JSON.parse(response.payload), { id: 123 })
-  })
+  const response = await inject(partialRight(router, (err) => err && t.end(err)), options)
+
+  t.equal(response.statusCode, 200)
+  t.deepEqual(JSON.parse(response.payload), { id: 123 })
 })
 
-test('valid response: buffers', function (t) {
+test('valid response: buffers', async function (t) {
   t.plan(2)
 
   const router = Swole(fixtures.basic, {
@@ -356,10 +355,10 @@ test('valid response: buffers', function (t) {
     }
   }
 
-  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
-    t.equal(response.statusCode, 200)
-    t.deepEqual(JSON.parse(response.payload), { id: 123 })
-  })
+  const response = await inject(partialRight(router, (err) => err && t.end(err)), options)
+
+  t.equal(response.statusCode, 200)
+  t.deepEqual(JSON.parse(response.payload), { id: 123 })
 })
 
 test('invalid response', function (t) {
@@ -387,7 +386,7 @@ test('invalid response', function (t) {
     }
   }
 
-  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+  inject(partialRight(router, onError), options).then(t.fail.bind('no response'))
 
   function onError (err) {
     t.ok(err, 'returns error')
@@ -423,7 +422,7 @@ test('invalid response: bad data', function (t) {
     }
   }
 
-  inject(partialRight(router, onError), options, t.fail.bind('no response'))
+  inject(partialRight(router, onError), options).then(t.fail.bind('no response'))
 
   function onError (err) {
     t.ok(err, 'returns error')
@@ -462,7 +461,7 @@ test('unexpected status', function (t) {
     }
   }
 
-  inject(partialRight(router, onError), options, t.fail.bind(t, 'no response'))
+  inject(partialRight(router, onError), options).then(t.fail.bind(t, 'no response'))
 
   function onError (err) {
     t.ok(err, 'returns error')
@@ -471,7 +470,7 @@ test('unexpected status', function (t) {
   }
 })
 
-test('unexpected status: ignores 500+', function (t) {
+test('unexpected status: ignores 500+', async function (t) {
   t.plan(1)
 
   const router = Swole(fixtures.basic, {
@@ -497,12 +496,11 @@ test('unexpected status: ignores 500+', function (t) {
     }
   }
 
-  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
-    t.equal(response.statusCode, 500)
-  })
+  const { statusCode } = await inject(partialRight(router, (err) => err && t.end(err)), options)
+  t.equal(statusCode, 500)
 })
 
-test('basePath', function (t) {
+test('basePath', async function (t) {
   t.plan(1)
 
   const router = Swole(extend(fixtures.basic, { basePath: '/boop' }), {
@@ -523,12 +521,11 @@ test('basePath', function (t) {
     }
   }
 
-  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
-    t.equal(response.statusCode, 200)
-  })
+  const { statusCode } = await inject(partialRight(router, (err) => err && t.end(err)), options)
+  t.equal(statusCode, 200)
 })
 
-test('no parameters', function (t) {
+test('no parameters', async function (t) {
   t.plan(1)
 
   const router = Swole(fixtures.basic, {
@@ -545,12 +542,11 @@ test('no parameters', function (t) {
     url: '/paramless'
   }
 
-  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
-    t.equal(response.statusCode, 200)
-  })
+  const { statusCode } = await inject(partialRight(router, (err) => err && t.end(err)), options)
+  t.equal(statusCode, 200)
 })
 
-test('file', function (t) {
+test('file', async function (t) {
   t.plan(1)
 
   const router = Swole(fixtures.basic, {
@@ -568,12 +564,11 @@ test('file', function (t) {
     url: '/file'
   }
 
-  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
-    t.equal(response.statusCode, 200)
-  })
+  const { statusCode } = await inject(partialRight(router, (err) => err && t.end(err)), options)
+  t.equal(statusCode, 200)
 })
 
-test('case insensitive (default)', function (t) {
+test('case insensitive (default)', async function (t) {
   t.plan(1)
 
   const router = Swole(fixtures.basic, {
@@ -590,12 +585,11 @@ test('case insensitive (default)', function (t) {
     url: '/casedroute'
   }
 
-  inject(partialRight(router, (err) => err && t.end(err)), options, function (response) {
-    t.equal(response.statusCode, 200)
-  })
+  const { statusCode } = await inject(partialRight(router, (err) => err && t.end(err)), options)
+  t.equal(statusCode, 200)
 })
 
-test('case sensitive', function (t) {
+test('case sensitive', async function (t) {
   t.plan(1)
 
   const router = Swole(fixtures.basic, {
@@ -613,7 +607,7 @@ test('case sensitive', function (t) {
     url: '/casedroute'
   }
 
-  inject(partialRight(router, (err) => t.equal(err.statusCode, 404)), options, t.fail)
+  inject(partialRight(router, (err) => t.equal(err.statusCode, 404)), options).then(t.fail)
 })
 
 test('throws with missing handler', function (t) {
