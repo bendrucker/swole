@@ -18,7 +18,7 @@ const response = require('./response')
 module.exports = Swole
 
 function Swole (swagger, options) {
-  options = extend({lowercase: true, accepts: ['json']}, options)
+  options = extend({ lowercase: true, accepts: ['json'] }, options)
 
   const router = Router()
   createRoutes(router, swagger, options)
@@ -55,7 +55,7 @@ function createRoutes (router, swagger, options) {
     const handlerKey = data['x-handler']
     const handler = options.handlers[handlerKey]
 
-    assert.equal(typeof handler, 'function', `invalid x-handler for ${path}: ${handlerKey} (${handler})`)
+    assert.strictEqual(typeof handler, 'function', `invalid x-handler for ${path}: ${handlerKey} (${handler})`)
 
     return function handle (req, res, route, callback) {
       series([
@@ -72,7 +72,7 @@ function createRoutes (router, swagger, options) {
 }
 
 function identify (req, path, operation, callback) {
-  req.swole = {path, operation}
+  req.swole = { path, operation }
   callback()
 }
 
